@@ -4,11 +4,11 @@ package org.example;// LifePolicy.java
 import java.text.DecimalFormat;
 
 public class LifePolicy {
-    private String policyHolderName;
-    private int birthYear;
-    private int currentYear;
-    private boolean isInState;
-    private boolean isRetired;
+    private final String policyHolderName;
+    private final int birthYear;
+    private final int currentYear;
+    private final boolean isInState;
+    private final boolean isRetired;
     private double policyCost;
 
     // Default constructor
