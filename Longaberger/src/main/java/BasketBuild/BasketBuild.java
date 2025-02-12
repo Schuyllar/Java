@@ -6,7 +6,17 @@ import java.util.Date;
 
 public class BasketBuild {
 
-    // Instance variables
+    private static final char[] BASKET_TYPES = {'C', 'W', 'K', 'M', 'U'};
+    private static final String[] BASKET_LITERALS = {"Cracker", "Wildflower", "Key", "Magazine", "Umbrella"};
+    private static final double[] BASKET_COSTS = {15.00, 53.25, 23.15, 34.20, 112.77};
+
+    private static final String[] ACCESSORY_CODES = {"A1", "A2", "A3", "A4"};
+    private static final String[] ACCESSORY_LITERALS = {"Protector", "Liner", "Combo", "None"};
+    private static final double[] ACCESSORY_COSTS = {4.75, 8.00, 10.55, 0.00};
+
+    private static final String[] CUSTOMER_TYPE_LITERALS = {"Dealer", "Walk-in", "Bus"};
+    private static final double[] DISCOUNT_PERCENTAGES = {0.50, 0.00, 0.10};
+
     private char basketType;
     private String accessoryType;
     private int customerType;
@@ -17,6 +27,9 @@ public class BasketBuild {
     private double discount;
     private double tax;
     private double totalCost;
+    private String basketLiteral;
+    private String accessoryLiteral;
+    private String customerLiteral;
 
     public BasketBuild() {
         this.basketType = 'U';
@@ -32,116 +45,58 @@ public class BasketBuild {
         this.state = state;
     }
 
-    public char getBasketType() {
-        return basketType;
-    }
-
-    public void setBasketType(char basketType) {
-        this.basketType = basketType;
-    }
-
-    public String getAccessoryType() {
-        return accessoryType;
-    }
-
-    public void setAccessoryType(String accessoryType) {
-        this.accessoryType = accessoryType;
-    }
-
-    public int getCustomerType() {
-        return customerType;
-    }
-
-    public void setCustomerType(int customerType) {
-        this.customerType = customerType;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    // Calc costs
     public void calculate() {
-        // Basket Cost Calcs
-        switch (basketType) {
-            case 'C':
-                basketCost = 15.00;
+        int basketIndex = -1;
+        for (int i = 0; i < BASKET_TYPES.length; i++) {
+            if (BASKET_TYPES[i] == basketType) {
+                basketIndex = i;
                 break;
-            case 'W':
-                basketCost = 53.25;
-                break;
-            case 'K':
-                basketCost = 23.15;
-                break;
-            case 'M':
-                basketCost = 34.20;
-                break;
-            case 'U':
-                basketCost = 112.77;
-                break;
-            default:
-                basketCost = 112.77; // Default to umbrella basket
+            }
+        }
+        if (basketIndex != -1) {
+            basketCost = BASKET_COSTS[basketIndex];
+            basketLiteral = BASKET_LITERALS[basketIndex];
         }
 
-        // Accessories
-        switch (accessoryType) {
-            case "A1":
-                accessoryCost = 4.75;
+        int accessoryIndex = -1;
+        for (int i = 0; i < ACCESSORY_CODES.length; i++) {
+            if (ACCESSORY_CODES[i].equals(accessoryType)) {
+                accessoryIndex = i;
                 break;
-            case "A2":
-                accessoryCost = 8.00;
-                break;
-            case "A3":
-                accessoryCost = 10.55;
-                break;
-            case "A4":
-                accessoryCost = 0.00;
-                break;
-            default:
-                accessoryCost = 0.00; // Default to none
+            }
+        }
+        if (accessoryIndex != -1) {
+            accessoryCost = ACCESSORY_COSTS[accessoryIndex];
+            accessoryLiteral = ACCESSORY_LITERALS[accessoryIndex];
         }
 
-        // Basket Amount
-        double basketAmount = basketCost + accessoryCost;
+        int customerIndex = customerType - 1;
+        if (customerIndex >= 0 && customerIndex < CUSTOMER_TYPE_LITERALS.length) {
+            customerLiteral = CUSTOMER_TYPE_LITERALS[customerIndex];
+            discount = (basketCost + accessoryCost) * DISCOUNT_PERCENTAGES[customerIndex];
+        }
 
-        // CustDiscount
-        double discountRate = switch (customerType) {
-            case 1 -> 0.50; // Dealer
-            case 3 -> 0.10; // Bus
-            default -> 0.00; // Walk-in or invalid input
-        };
-        discount = basketAmount * discountRate;
+        double subtotal = (basketCost + accessoryCost) - discount;
 
-        // Subtotal
-        double subtotal = basketAmount - discount;
-
-        // State Tax
         double taxRate = switch (state) {
             case "IA" -> 0.06;
             case "IL" -> 0.0625;
             case "MO" -> 0.04225;
-            default -> 0.06; // Default to IA tax rate
+            default -> 0.06;
         };
-        tax = (customerType == 1) ? 0 : subtotal * taxRate; // Dealers do not pay sales tax
-
-        // Cost
+        tax = (customerType == 1) ? 0 : subtotal * taxRate;
         totalCost = subtotal + tax;
     }
 
-    // Receipts
     public String generateReceipt() {
         DecimalFormat df = new DecimalFormat("#.00");
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         String date = sdf.format(new Date());
 
         return "Date: " + date +
-                "\nBasket Type: " + basketType +
-                "\nAccessory Type: " + accessoryType +
-                "\nCustomer Type: " + customerType +
+                "\nBasket Type: " + basketLiteral +
+                "\nAccessory Type: " + accessoryLiteral +
+                "\nCustomer Type: " + customerLiteral +
                 "\nState: " + state +
                 "\nBasket Cost: $" + df.format(basketCost) +
                 "\nAccessory Cost: $" + df.format(accessoryCost) +
